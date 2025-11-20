@@ -1,0 +1,124 @@
+# Shor’s Algorithm in Cirq
+
+A complete implementation of Shor’s algorithm using Cirq, including:
+
+* Classical and quantum order finding
+* A reversible modular exponentiation gate
+* Quantum Phase Estimation (QPE) for period finding
+* Full factorization routine with classical post-processing
+* Basic noise and resource analysis tools
+
+## Overview
+
+This project demonstrates how to factor composite integers using Shor’s algorithm:
+
+* Builds multiplicative groups and classical order-finding routines
+* Implements quantum arithmetic gates (`Adder`, `ModularExp`)
+* Uses QPE to estimate the period (order) of ( x \mod n )
+* Recovers the order via continued fractions
+* Extracts non-trivial factors of ( n ) from the order
+
+It is designed as an educational and experimental playground for studying Shor’s algorithm in simulation.
+
+## Features
+
+* **Classical components**
+
+  * `multiplicative_group(n)`
+  * `classical_order_finder(x, n)`
+  * `find_factor_of_prime_power(n)`
+  * `find_factor(n, order_finder=...)`
+
+* **Quantum components**
+
+  * `Adder` arithmetic gate (example of quantum addition)
+  * `ModularExp` gate implementing ( y \mapsto y \cdot x^e \bmod n )
+  * `make_order_finding_circuit(x, n)` using QPE
+  * `process_measurement(...)` to recover the order
+  * `quantum_order_finder(x, n)`
+
+* **Analysis utilities**
+
+  * `quantum_order_finder_with_shots(...)` for multi-shot statistics
+  * `analyze_circuit_resources(circuit, n)` for qubit/gate/depth counts
+  * `add_depolarizing_noise(circuit, p)` for simple noise modeling
+  * `benchmark_factoring()` to compare different inputs
+
+## Installation
+
+```bash
+pip install cirq sympy numpy pandas
+```
+
+If you run this in a notebook, you can also include a small bootstrap snippet that installs Cirq if it is missing.
+
+## Basic Usage
+
+### 1. Factor a number (with classical order finder for speed)
+
+```python
+n = 184573
+p = find_factor(n, order_finder=classical_order_finder)
+q = n // p
+print("n =", n, "=", p, "*", q)
+```
+
+### 2. Quantum order finding for a given base
+
+```python
+x = 7
+n = 15
+r = quantum_order_finder(x, n)
+print("Order of", x, "mod", n, "is", r)
+```
+
+### 3. Run the full analysis script
+
+```python
+if __name__ == "__main__":
+    results = main()
+```
+
+This runs:
+
+* Known-order tests
+* Resource analysis for several values of ( n )
+* Success probability experiments
+* Factoring benchmarks
+
+## How It Works (Brief)
+
+1. **Order finding**
+
+   Find the smallest ( r ) such that
+   [
+   x^r \equiv 1 \pmod n.
+   ]
+
+2. **Quantum phase estimation**
+
+   Uses the modular exponentiation unitary to encode the phase
+   [
+   \phi \approx \frac{s}{r}
+   ]
+   in the exponent register.
+
+3. **Continued fractions**
+
+   Approximates ( \phi ) as ( s/r ) with bounded denominator, giving a candidate order ( r ).
+
+4. **Factor extraction**
+
+   If ( r ) is even and ( x^{r/2} \not\equiv -1 \pmod n ), then
+   [
+   \gcd(x^{r/2} \pm 1, n)
+   ]
+   yields non-trivial factors of ( n ).
+
+## Requirements
+
+* Python 3.8+
+* cirq
+* sympy
+* numpy
+* pandas
